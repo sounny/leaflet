@@ -7,78 +7,173 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<!-- Leaflet style. REQUIRED! -->
        <link rel="stylesheet" href="preview/vendor/leaflet.css" />
-	<style>
-                html { height: 100% }
-                body { height: 100%; margin: 0; padding: 0; }
-                .map { height: 100%; position: absolute; top: 0; right: 0; bottom: 0; left: 220px; }
-                #toc {
-                        position: absolute;
-                        top: 0;
-                        bottom: 0;
-                        left: 0;
-                        width: 220px;
-                        overflow-y: auto;
-                        background: rgba(255, 255, 255, 0.9);
-                        padding: 10px;
+        <style>
+                :root {
+                        --card-bg: rgba(255, 255, 255, 0.95);
+                        --border-color: #e2e8f0;
+                        --text-color: #1f2937;
+                }
+
+                html { height: 100%; }
+
+                body {
+                        min-height: 100%;
+                        margin: 0;
+                        background: #f5f7fb;
+                        color: var(--text-color);
                         font: 14px/16px Arial, Helvetica, sans-serif;
-                        z-index: 1000;
+                        display: flex;
+                        flex-direction: column;
                 }
+
+                .page-header {
+                        padding: 14px 12px 8px;
+                        background: linear-gradient(135deg, #1f2937, #0ea5e9);
+                        color: #fff;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+                }
+
+                .page-header h1 {
+                        margin: 0;
+                        font-size: 20px;
+                        line-height: 1.2;
+                }
+
+                .layout {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 12px;
+                        padding: 12px;
+                        box-sizing: border-box;
+                }
+
+                #toc {
+                        background: var(--card-bg);
+                        border: 1px solid var(--border-color);
+                        border-radius: 10px;
+                        padding: 12px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        overflow-y: auto;
+                        max-height: 40vh;
+                }
+
                 #toc h4 {
-                        margin: 0 0 6px;
+                        margin: 0 0 8px;
+                        font-size: 15px;
+                        color: #0f172a;
                 }
+
                 #toc select {
                         width: 100%;
                         margin-top: 10px;
+                        padding: 8px 10px;
+                        border-radius: 6px;
+                        border: 1px solid var(--border-color);
+                        background: #fff;
+                        font-size: 14px;
                 }
-                h1 {
+
+                #toc label {
+                        margin-left: 6px;
+                        display: inline-block;
+                        margin-bottom: 6px;
+                }
+
+                .map-area {
+                        position: relative;
+                        flex: 1;
+                        min-height: 55vh;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+                        background: #ddd;
+                }
+
+                .map {
+                        height: 100%;
+                        width: 100%;
                         position: absolute;
-                        top: 10px;
-                        left: 10px;
-                        margin: 0;
-                        padding: 4px 8px;
-                        background: rgba(255, 255, 255, 0.85);
-                        border-radius: 4px;
-                        font: 20px/24px Arial, Helvetica, sans-serif;
-                        z-index: 1000;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        left: 0;
                 }
-	</style>
-        <link rel="stylesheet" href="preview/vendor/github.css" />
-        <style>
+
                 #info {
                         position: absolute;
-                        top: 10px;
-                        right: 10px;
-                        background: rgba(255, 255, 255, 0.85);
-                        padding: 6px 8px;
-                        border-radius: 4px;
-                        font: 14px/16px Arial, Helvetica, sans-serif;
-                        max-width: 300px;
+                        top: 12px;
+                        right: 12px;
+                        background: var(--card-bg);
+                        padding: 10px 12px;
+                        border-radius: 10px;
+                        border: 1px solid var(--border-color);
+                        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+                        font: 14px/18px Arial, Helvetica, sans-serif;
+                        max-width: min(420px, calc(100% - 24px));
                         z-index: 1000;
+                        backdrop-filter: blur(4px);
                 }
+
+                #info h4 {
+                        margin: 0 0 6px;
+                        font-size: 14px;
+                        color: #0f172a;
+                }
+
                 #info pre {
                         margin: 0;
                 }
+
                 #info pre code {
                         font-size: 12px;
                         overflow-x: auto;
                 }
+
+                @media (min-width: 900px) {
+                        body { height: 100%; }
+
+                        .layout {
+                                flex-direction: row;
+                                gap: 16px;
+                        }
+
+                        #toc {
+                                flex: 0 0 300px;
+                                max-height: none;
+                                position: sticky;
+                                top: 16px;
+                                align-self: flex-start;
+                        }
+
+                        .map-area {
+                                min-height: calc(100vh - 140px);
+                        }
+                }
         </style>
+        <link rel="stylesheet" href="preview/vendor/github.css" />
 </head>
 <body>
-        <h1>Leaflet Map Tile Providers</h1>
-        <div id="info">
-                <h4>Provider names for <code>leaflet-providers.js</code></h4>
-                <code class="provider-names"></code>
-                <h4>Plain JavaScript:</h4>
-                <pre><code class="javascript"></code></pre>
-        </div>
-        <div id="toc">
-                <h4>Overlays</h4>
-                <div id="overlays"></div>
-                <h4>Map Tiles</h4>
-                <select id="base-select"></select>
-        </div>
-        <div id="map" class="map"></div>
+        <header class="page-header">
+                <h1>Leaflet Map Tile Providers</h1>
+        </header>
+        <main class="layout">
+                <section id="toc" aria-label="Map controls">
+                        <h4>Overlays</h4>
+                        <div id="overlays"></div>
+                        <h4>Map Tiles</h4>
+                        <select id="base-select"></select>
+                </section>
+                <section class="map-area" aria-label="Map preview">
+                        <div id="map" class="map"></div>
+                        <div id="info">
+                                <h4>Provider names for <code>leaflet-providers.js</code></h4>
+                                <code class="provider-names"></code>
+                                <h4>Plain JavaScript:</h4>
+                                <pre><code class="javascript"></code></pre>
+                        </div>
+                </section>
+        </main>
 
        <script src="preview/vendor/leaflet.js"></script>
         <script src="leaflet-providers.js"></script>
