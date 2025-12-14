@@ -48,17 +48,55 @@
                         box-sizing: border-box;
                 }
 
-                #toc {
+                .collapsible {
                         background: var(--card-bg);
                         border: 1px solid var(--border-color);
                         border-radius: 10px;
                         padding: 12px;
                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                }
+
+                .panel-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 8px;
+                        margin-bottom: 8px;
+                }
+
+                .panel-header h4 {
+                        margin: 0;
+                        font-size: 15px;
+                        color: #0f172a;
+                }
+
+                .collapse-toggle {
+                        background: #0ea5e9;
+                        color: #fff;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px 10px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+                        transition: background 0.2s ease, transform 0.1s ease;
+                }
+
+                .collapse-toggle:active {
+                        transform: translateY(1px);
+                }
+
+                .collapsible-body.collapsed {
+                        display: none;
+                }
+
+                #toc {
                         overflow-y: auto;
                         max-height: 40vh;
                 }
 
-                #toc h4 {
+                #toc .collapsible-body h4,
+                #info .collapsible-body h4 {
                         margin: 0 0 8px;
                         font-size: 15px;
                         color: #0f172a;
@@ -115,12 +153,6 @@
                         backdrop-filter: blur(4px);
                 }
 
-                #info h4 {
-                        margin: 0 0 6px;
-                        font-size: 14px;
-                        color: #0f172a;
-                }
-
                 #info pre {
                         margin: 0;
                 }
@@ -158,19 +190,31 @@
                 <h1>Leaflet Map Tile Providers</h1>
         </header>
         <main class="layout">
-                <section id="toc" aria-label="Map controls">
-                        <h4>Overlays</h4>
-                        <div id="overlays"></div>
-                        <h4>Map Tiles</h4>
-                        <select id="base-select"></select>
+                <section id="toc" class="collapsible" aria-label="Map controls">
+                        <div class="panel-header">
+                                <h4>Map controls</h4>
+                                <button type="button" class="collapse-toggle" aria-expanded="true">Hide</button>
+                        </div>
+                        <div class="collapsible-body">
+                                <h4>Overlays</h4>
+                                <div id="overlays"></div>
+                                <h4>Map Tiles</h4>
+                                <select id="base-select"></select>
+                        </div>
                 </section>
                 <section class="map-area" aria-label="Map preview">
                         <div id="map" class="map"></div>
-                        <div id="info">
-                                <h4>Provider names for <code>leaflet-providers.js</code></h4>
-                                <code class="provider-names"></code>
-                                <h4>Plain JavaScript:</h4>
-                                <pre><code class="javascript"></code></pre>
+                        <div id="info" class="collapsible">
+                                <div class="panel-header">
+                                        <h4>Code &amp; provider details</h4>
+                                        <button type="button" class="collapse-toggle" aria-expanded="true">Hide</button>
+                                </div>
+                                <div class="collapsible-body">
+                                        <h4>Provider names for <code>leaflet-providers.js</code></h4>
+                                        <code class="provider-names"></code>
+                                        <h4>Plain JavaScript:</h4>
+                                        <pre><code class="javascript"></code></pre>
+                                </div>
                         </div>
                 </section>
         </main>
@@ -184,6 +228,28 @@
                         zoom: 5,
                         zoomControl: false
                 });
+
+                function setupCollapsible(sectionId, defaultCollapsed) {
+                        var section = document.getElementById(sectionId);
+                        if (!section) { return; }
+
+                        var toggle = section.querySelector('.collapse-toggle');
+                        var body = section.querySelector('.collapsible-body');
+                        if (!toggle || !body) { return; }
+
+                        function setCollapsed(collapsed) {
+                                body.classList.toggle('collapsed', collapsed);
+                                toggle.setAttribute('aria-expanded', (!collapsed).toString());
+                                toggle.textContent = collapsed ? 'Show' : 'Hide';
+                        }
+
+                        setCollapsed(!!defaultCollapsed);
+
+                        toggle.addEventListener('click', function() {
+                                var currentlyCollapsed = body.classList.contains('collapsed');
+                                setCollapsed(!currentlyCollapsed);
+                        });
+                }
 
                 function createProviderLayer(name) {
                         var layer = L.tileLayer.provider(name);
@@ -330,6 +396,10 @@
 
                 var providerNamesEl = document.querySelector('#info .provider-names');
                 var codeEl = document.querySelector('#info pre code');
+
+                var preferCollapsed = window.matchMedia('(max-width: 768px)').matches;
+                setupCollapsible('toc', preferCollapsed);
+                setupCollapsible('info', preferCollapsed);
 
                 function updateInfo() {
                         var names = [];
